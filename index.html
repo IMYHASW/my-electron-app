@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Electron SQLite Demo</title>
+  <style>
+    .container { padding: 20px; }
+    .result { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>用户管理</h1>
+    
+    <!-- 数据输入表单 -->
+    <div>
+      <input type="text" id="name" placeholder="用户名">
+      <input type="email" id="email" placeholder="邮箱">
+      <button onclick="addUser()">添加用户</button>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div style="margin-top: 20px;">
+      <button onclick="getAllUsers()">获取所有用户</button>
+      <button onclick="clearUsers()">清空用户</button>
+    </div>
+
+    <!-- 结果显示区域 -->
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    // 数据库操作函数
+    async function addUser() {
+      const name = document.getElementById('name').value
+      const email = document.getElementById('email').value
+
+      try {
+        const res = await window.electronAPI.dbRun(
+          'INSERT INTO users (name, email) VALUES (?, ?)',
+          [name, email]
+        )
+        showResult(`成功添加用户，ID: ${res.lastID}`)
+      } catch (err) {
+        showResult(`错误: ${err}`, true)
+      }
+    }
+
+    async function getAllUsers() {
+      try {
+        const users = await window.electronAPI.dbQuery(
+          'SELECT * FROM users ORDER BY created_at DESC'
+        )
+        showResult(JSON.stringify(users, null, 2))
+      } catch (err) {
+        showResult(`错误: ${err}`, true)
+      }
+    }
+
+    async function clearUsers() {
+      if (!confirm('确定要清空所有用户吗？')) return
+      
+      try {
+        const res = await window.electronAPI.dbRun(
+          'DELETE FROM users'
+        )
+        showResult(`已删除 ${res.changes} 条记录`)
+      } catch (err) {
+        showResult(`错误: ${err}`, true)
+      }
+    }
+
+    // 结果显示处理
+    function showResult(content, isError = false) {
+      const resultDiv = document.getElementById('result')
+      resultDiv.innerHTML = `<pre>${content}</pre>`
+      resultDiv.style.color = isError ? 'red' : 'green'
+    }
+  </script>
+</body>
+</html>
