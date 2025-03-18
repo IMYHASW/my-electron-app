@@ -1,16 +1,15 @@
-/*
- * @Author: wuxiaopang 2540729242@qq.com
- * @Date: 2025-03-16 19:43:24
- * @LastEditors: wuxiaopang 2540729242@qq.com
- * @LastEditTime: 2025-03-16 20:31:41
- * @FilePath: \my-electron-app\src\db.js
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+/**
+ * @Author: wujl
+ * @Date: 2025-03-17 08:43:24
+ * @Description: 数据库操作模块 使用sqlite3模块
  */
+
 const { app } = require('electron')
 const path = require('path')
 const sqlite3 = require('sqlite3').verbose()
 const fs = require('fs')
 
+// 获取数据库文件路径
 const getDbPath = () => {
   const basePath = app.isPackaged 
     ? path.join(app.getAppPath(), '../db') 
@@ -24,19 +23,12 @@ const getDbPath = () => {
   return path.join(basePath, 'appdata.db')
 }
 
+// 初始化数据库
 const initDatabase = () => {
-// C:\Users\<用户名>\AppData\Roaming\<应用名>\data.db
-//   const dbPath = path.join(app.getPath('userData'), 'appdata.db') 
-
-
-
 const db = new sqlite3.Database(getDbPath())
 
 module.exports = db
 
-
-
-//   const db = new sqlite3.Database(dbPath)
   // 初始化表结构
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (

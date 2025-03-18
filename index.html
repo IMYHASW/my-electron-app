@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>Electron SQLite Demo</title>
   <style>
-    .container { padding: 20px; }
-    .result { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
+    .container {
+      padding: 20px;
+    }
+
+    .result {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>用户管理</h1>
-    
+
     <!-- 数据输入表单 -->
     <div>
       <input type="text" id="name" placeholder="用户名">
@@ -59,7 +68,7 @@
 
     async function clearUsers() {
       if (!confirm('确定要清空所有用户吗？')) return
-      
+
       try {
         const res = await window.electronAPI.dbRun(
           'DELETE FROM users'
@@ -76,6 +85,19 @@
       resultDiv.innerHTML = `<pre>${content}</pre>`
       resultDiv.style.color = isError ? 'red' : 'green'
     }
+
+    // 事务测试，假设执行多个插入操作
+    const operations = [
+      { sql: 'INSERT INTO users (name, email) VALUES (?, ?)', params: ['John', 'john@example.com'] },
+      { sql: 'INSERT INTO users (name, email) VALUES (?, ?)', params: ['Jane', 'jane@example.com'] },
+      { sql: 'INVALID SQL STATEMENT', params: [] }
+    ];
+
+    // 依次执行 SQL 语句
+    window.electronAPI.dbRunTransactional(operations)
+      .then(() => console.log('----------success'))
+      .catch((err) => console.error('----------fail:', err));
   </script>
 </body>
+
 </html>
